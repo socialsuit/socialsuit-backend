@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
 from services.database.database import get_db
-from models.user import User
+from services.models.user import User
 from core.config import settings
 
 def get_current_user(db: Session = Depends(get_db), token: str = Depends(lambda: None)):
