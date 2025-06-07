@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from jose import jwt
 import secrets
 
-from models.user import WalletUserModel  # Assuming you're using a DB model
+from services.models.user import WalletUserModel  # Assuming you're using a DB model
 from auth.wallet.auth_schema import (
     WalletNonceRequest,
     WalletSignatureVerifyRequest,
