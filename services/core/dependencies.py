@@ -2,10 +2,10 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
 from services.database.database import get_db
-from services.models.user import User
 from core.config import settings
 
 def get_current_user(db: Session = Depends(get_db), token: str = Depends(lambda: None)):
+    from services.models.user import User
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
