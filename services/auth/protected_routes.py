@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends
 from services.auth.auth_guard import auth_required
-from services.models.user import User
 
 router = APIRouter(prefix="/secure", tags=["Protected"])
 
 @router.get("/me")
-def get_profile(current_user: User = Depends(auth_required)):
+def get_profile(current_user = Depends(auth_required)):
+    from services.models.user import User  # ✅ local import to break circular dependency
+
     return {
         "id": str(current_user.id),
         "email": current_user.email,
