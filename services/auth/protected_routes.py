@@ -6,7 +6,7 @@ router = APIRouter(prefix="/secure", tags=["Protected"])
 
 @router.get("/me")
 def get_profile(current_user: Any = Depends(auth_required)):
-    from services.models.user import User  # ✅ local import to break circular dependency
+    from services.models.user_model import User  # ✅ local import to break circular dependency
 
     return {
         "id": str(current_user.id),
