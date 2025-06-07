@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from services.auth.auth_guard import auth_required
-from models.user import User
+from services.models.user import User
 
 router = APIRouter(prefix="/secure", tags=["Protected"])
 
