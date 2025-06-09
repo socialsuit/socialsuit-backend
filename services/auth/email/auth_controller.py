@@ -4,7 +4,7 @@ from datetime import timedelta, datetime
 from fastapi import HTTPException, status
 from jose import jwt
 from passlib.context import CryptContext
-from auth_schema import LoginRequest, AuthResponse, UserInDB
+from services.auth.email.auth_schema import LoginRequest, AuthResponse, UserInDB
 from typing import Optional
 
 # Secret config values (ideally from environment or settings.py)

@@ -1,7 +1,7 @@
 # services/endpoint/auth_router.py
 
 from fastapi import APIRouter
-from auth_schema import LoginRequest, AuthResponse
+from services.auth.email.auth_schema import LoginRequest, AuthResponse
 from services.auth.email.auth_controller import login_user
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])

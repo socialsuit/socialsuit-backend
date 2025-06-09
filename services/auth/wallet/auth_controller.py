@@ -3,14 +3,14 @@ from jose import jwt
 import secrets
 
 from services.models.user_model import User as WalletUserModel  # Assuming you're using a DB model
-from auth.wallet.auth_schema import (
+from services.auth.wallet.auth_schema import (
     WalletNonceRequest,
     WalletSignatureVerifyRequest,
     WalletAuthResponse,
     WalletNetwork,
 )
-from auth.jwt_handler import create_access_token, create_refresh_token
-from auth.wallet.auth_schema import verify_wallet_signature  # Custom EVM signature checker
+from services.auth.jwt_handler import create_access_token, create_refresh_token
+from services.auth.wallet.auth_schema import verify_wallet_signature  # Custom EVM signature checker
 from services.database.database import db  # Your DB session
 
 # In-memory nonce store (replace with Redis or DB in production)
