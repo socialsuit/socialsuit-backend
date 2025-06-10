@@ -13,7 +13,7 @@ from services.auth.jwt_handler import (
     create_access_token,
     create_refresh_token,
 )
-from services.database.database import db  # Your DB session
+from services.database.database import get_db # Your DB session
 
 # In-memory nonce store (should use Redis or DB in production)
 NONCE_STORE = {}
@@ -48,7 +48,7 @@ async def verify_wallet_signature_controller(payload: WalletSignatureVerifyReque
         raise ValueError("Signature verification failed")
 
     # Save or update user in DB
-    user = await db.get_wallet_user(payload.address, payload.network)
+    user = await get_db.get_wallet_user(payload.address, payload.network)
     now = datetime.utcnow()
     if not user:
         user = WalletUserModel(
@@ -58,10 +58,10 @@ async def verify_wallet_signature_controller(payload: WalletSignatureVerifyReque
             last_login=now,
             is_verified=True
         )
-        await db.save_wallet_user(user)
+        await get_db.save_wallet_user(user)
     else:
         user.last_login = now
-        await db.update_wallet_user(user)
+        await get_db.update_wallet_user(user)
 
     # Token generation
     access_token = create_access_token(
