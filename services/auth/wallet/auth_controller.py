@@ -2,28 +2,35 @@ from datetime import datetime, timedelta
 from jose import jwt
 import secrets
 
-from services.models.user_model import User as WalletUserModel  # Assuming you're using a DB model
+from services.models.user_model import User as WalletUserModel
 from services.auth.wallet.auth_schema import (
     WalletNonceRequest,
     WalletSignatureVerifyRequest,
     WalletAuthResponse,
     WalletNetwork,
 )
-from services.auth.jwt_handler import create_access_token, create_refresh_token
-from services.auth.wallet.auth_schema import verify_wallet_signature  # Custom EVM signature checker
+from services.auth.jwt_handler import (
+    create_access_token,
+    create_refresh_token,
+)
 from services.database.database import db  # Your DB session
 
-# In-memory nonce store (replace with Redis or DB in production)
+# In-memory nonce store (should use Redis or DB in production)
 NONCE_STORE = {}
 
+# Generate a nonce for wallet login
 async def generate_wallet_nonce(payload: WalletNonceRequest):
     nonce = secrets.token_hex(16)
     key = f"{payload.network}:{payload.address}"
     NONCE_STORE[key] = nonce
-
     return {"nonce": nonce}
 
+
+# Verify the signature and issue tokens
 async def verify_wallet_signature_controller(payload: WalletSignatureVerifyRequest):
+    # ⛔ FIX: Lazy import to avoid circular import
+    from services.auth.wallet.auth_controller import verify_wallet_signature
+
     key = f"{payload.network}:{payload.address}"
     expected_nonce = NONCE_STORE.get(key)
 
@@ -31,7 +38,7 @@ async def verify_wallet_signature_controller(payload: WalletSignatureVerifyReque
         raise ValueError("Invalid or expired nonce")
 
     # Signature Verification
-    is_valid = verify_wallet_signature(
+    is_valid = await verify_wallet_signature(
         address=payload.address,
         signature=payload.signature,
         message=expected_nonce,
@@ -57,8 +64,11 @@ async def verify_wallet_signature_controller(payload: WalletSignatureVerifyReque
         await db.update_wallet_user(user)
 
     # Token generation
-    access_token = create_access_token(data={"wallet": payload.address})
-    refresh_token = create_refresh_token(data={"wallet": payload.address})
+    access_token = create_access_token(
+        user_id=payload.address,
+        wallet_address=payload.address
+    )
+    refresh_token = create_refresh_token(user_id=payload.address)
 
     return WalletAuthResponse(
         access_token=access_token,
