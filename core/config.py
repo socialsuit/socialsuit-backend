@@ -1,22 +1,33 @@
-# core/config.py
 from pydantic_settings import BaseSettings
+from functools import lru_cache
 
 class Settings(BaseSettings):
-    # Database
-    DATABASE_URL: str = "postgresql://username:password@localhost/db"
-    MONGODB_URL: str = "mongodb://localhost:27017"
-    REDIS_URL: str = "redis://localhost:6379"
+    # PostgreSQL
+    DATABASE_URL: str
+
+    # MongoDB
+    MONGODB_URL: str
+
+    # Redis
+    REDIS_URL: str
 
     # Cloudinary
-    CLOUDINARY_CLOUD_NAME: str = "your_cloud_name"
-    CLOUDINARY_API_KEY: str = "your_api_key"
-    CLOUDINARY_API_SECRET: str = "your_api_secret"
+    CLOUDINARY_CLOUD_NAME: str
+    CLOUDINARY_API_KEY: str
+    CLOUDINARY_API_SECRET: str
 
-    # Security
-    JWT_SECRET: str = "supersecurekey"
+    # JWT Secret
+    JWT_SECRET: str
+
+    # Optional: Environment Mode
+    ENVIRONMENT: str = "development"
 
     class Config:
         env_file = ".env"
         extra = "allow"
 
-settings = Settings()
+@lru_cache()
+def get_settings():
+    return Settings()
+
+settings = get_settings()
