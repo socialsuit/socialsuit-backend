@@ -28,7 +28,6 @@ async def init_db_pool() -> None:
                 min_size=2,
                 max_size=10,
                 command_timeout=30,  # Query timeout (seconds)
-                connect_timeout=10,  # Connection timeout
                 max_inactive_connection_lifetime=300  # Close idle connections
             )
             print("✅ Database pool initialized")
