@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str
 
     # MongoDB
-    MONGO_URI: str
+    MONGO_URL: str
 
     # Redis
     REDIS_URL: str

@@ -20,7 +20,7 @@ from services.endpoint.customize import router as customize_router
 from services.database.database import Base, engine
 from services.database.postgresql import init_db_pool, get_db_connection
 from services.database.mongodb import MongoDBManager
-from services.database import redis 
+from services.database.redis import RedisManager
 
 app = FastAPI()
 
@@ -29,39 +29,33 @@ app = FastAPI()
 # -------------------------------
 @app.on_event("startup")
 async def connect_services():
-    # PostgreSQL
+    # ✅ PostgreSQL
     await init_db_pool()
-    async with get_db_connection() as conn:
-        await conn.execute("SELECT 1")
-    print("PostgreSQL Connected")
+    print("✅ PostgreSQL Connected")
 
-    # MongoDB
+    # ✅ MongoDB
     await MongoDBManager.initialize()
-    print("MongoDB Connected")
+    print("✅ MongoDB Connected")
 
-    # Redis
-    is_redis_connected = await redis.ping()
-    print("Redis Connected:", is_redis_connected)
-
+    # ✅ Redis
+    await RedisManager.initialize()
+    async with RedisManager.get_connection() as redis:
+        is_redis_connected = await redis.ping()
+        print("✅ Redis Connected:", is_redis_connected)
 
 # -------------------------------
-# 🔌 Graceful Shutdown
+# ❌ Disconnect All Services
 # -------------------------------
 @app.on_event("shutdown")
 async def shutdown_services():
-    # PostgreSQL
     from services.database.postgresql import close_db_pool
     await close_db_pool()
     print("🔌 PostgreSQL Connection Closed")
 
-    # MongoDB
-    from services.database.mongodb import MongoDBManager
     await MongoDBManager.close_connection()
     print("🔌 MongoDB Connection Closed")
 
-    # Redis
-    from services.database.redis import redis
-    await redis.close()
+    await RedisManager.close()
     print("🔌 Redis Connection Closed")
 
 # -------------------------------

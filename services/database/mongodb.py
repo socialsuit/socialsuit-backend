@@ -19,13 +19,13 @@ class MongoDBManager:
     @classmethod
     async def initialize(cls):
         """Initialize the MongoDB connection pool"""
-        MONGO_URI = os.getenv("MONGO_URI")
-        if not MONGO_URI:
-            raise ConfigurationError("MONGO_URI environment variable not set")
+        MONGO_URL = os.getenv("MONGO_URL")
+        if not MONGO_URL:
+            raise ConfigurationError("MONGO_URL environment variable not set")
 
         try:
             cls._client = AsyncIOMotorClient(
-                MONGO_URI,
+                MONGO_URL,
                 maxPoolSize=100,          # Default connection pool size
                 minPoolSize=10,           # Minimum connections
                 connectTimeoutMS=5000,    # 5-second connection timeout
