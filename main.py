@@ -68,7 +68,7 @@ Base.metadata.create_all(bind=engine)
 # -------------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://social-suit-landing.vercel.app/"],  # Frontend origin
+    allow_origins=["https://www.socialsuit.io/"],  # Frontend origin
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -82,7 +82,7 @@ app.include_router(schedule_router, prefix="/api/v1")
 app.include_router(analytics_router, prefix="/api/v1")
 app.include_router(recycle_router, prefix="/api/v1")
 app.include_router(ab_test_router, prefix="/api/v1")
-app.include_router(thumbnail_router, prefix="/api/v1")
+app.include_router(thumbnail_router, prefix="/api/v1", tags=["Thumbnail"])
 app.include_router(engage_router, prefix="/api/v1")
 app.include_router(customize_router, prefix="/api/v1")
 

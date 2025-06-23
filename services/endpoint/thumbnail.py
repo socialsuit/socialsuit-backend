@@ -1,13 +1,21 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Form
+from pydantic import BaseModel
 from typing import Optional
-from services.thumbnail import ThumbnailGenerator
+from services.thumbnail import SDXLThumbnailGenerator
 
 router = APIRouter()
-thumbnail_gen = ThumbnailGenerator()
+generator = SDXLThumbnailGenerator()
 
-@router.get("/generate-thumbnail")
-def generate_thumbnail(
-    query: str = Query(..., description="Search term for thumbnail image"),
-    platform: Optional[str] = Query("universal", description="Target platform like instagram_post, twitter, etc.")
-):
-    return thumbnail_gen.fetch_thumbnail(query=query, platform=platform)
+class ThumbnailRequest(BaseModel):
+    prompt: str
+    platform: str = "universal"
+    logo_base64: Optional[str] = None
+
+@router.post("/generate-thumbnail")
+async def generate_image(req: ThumbnailRequest):
+    result = generator.generate_thumbnail(
+        prompt=req.prompt,
+        platform=req.platform,
+        logo_base64=req.logo_base64
+    )
+    return result

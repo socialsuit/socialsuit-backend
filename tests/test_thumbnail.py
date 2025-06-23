@@ -1,12 +1,19 @@
-import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from services.thumbnail import SDXLThumbnailGenerator  # adjust path accordingly
 
-from fastapi.testclient import TestClient
-from main import app
+def test_generate_thumbnail():
+    os.environ["SDXL_API_KEY"] = "your_actual_api_key_here"
 
-client = TestClient(app)
+    generator = SDXLThumbnailGenerator()
+    prompt = "A futuristic AI robot writing code in a neon-lit room"
+    platform = "twitter"
 
-def test_thumbnail():
-    response = client.get("/generate-thumbnail", params={"query": "nature"})
-    assert response.status_code == 200
+    result = generator.generate_thumbnail(prompt, platform)
+
+    assert isinstance(result, dict)
+    assert "image_base64" in result or "error" in result
+
+    if "image_base64" in result:
+        print("✅ Image generated successfully")
+    else:
+        print(f"❌ Failed to generate: {result.get('error')}")

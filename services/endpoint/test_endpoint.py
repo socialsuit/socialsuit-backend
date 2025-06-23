@@ -60,8 +60,10 @@ def test_analytics():
     assert response.status_code == 200
 
 def test_generate_thumbnail():
-    response = client.get("/generate-thumbnail", params={
-        "query": "AI tools",
-        "platform": "instagram"
+    response = client.post("/api/v1/generate-thumbnail", json={
+        "prompt" : "AI tools",
+        "platform": "instagram",
+        "logo_base64" : None
     })
     assert response.status_code == 200
+    assert isinstance(response.json(), dict)

@@ -1,89 +1,87 @@
 import os
 import time
 import requests
-from dotenv import load_dotenv
+import base64
 from typing import Dict, Optional
 from urllib.parse import quote
 
-load_dotenv()
 
-class ThumbnailGenerator:
+class SDXLThumbnailGenerator:
     def __init__(self):
-        self.UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY")
-        self.BASE_URL = "https://api.unsplash.com/photos/random"
-        self.CACHE = {}  # {cache_key: (timestamp, result)}
+        self.SDXL_API_KEY = os.getenv("SDXL_API_KEY")
+        self.SDXL_ENDPOINT = "https://api.stability.ai/v1/generation/sdxl-512x512/text-to-image"
+        self.CACHE = {}
 
-    def _get_platform_params(self, platform: str) -> Dict:
-        """Returns optimized parameters for each platform"""
-        params = {
-            "universal": {"orientation": "landscape"},
-            "instagram_post": {"w": 1080, "h": 1350, "orientation": "portrait"},
-            "instagram_story": {"w": 1080, "h": 1920},
-            "twitter": {"w": 1200, "h": 675},
-            "linkedin": {"w": 1200, "h": 627},
-            "pinterest": {"w": 1000, "h": 1500},
-            "facebook": {"w": 1200, "h": 630},
-            "youtube_thumbnail": {"w": 1280, "h": 720}
+    def _get_platform_size(self, platform: str):
+        sizes = {
+            "universal": (1024, 1024),
+            "instagram_post": (1080, 1350),
+            "instagram_story": (1080, 1920),
+            "twitter": (1200, 675),
+            "linkedin": (1200, 627),
+            "pinterest": (1000, 1500),
+            "facebook": (1200, 630),
+            "youtube_thumbnail": (1280, 720)
         }
-        return params.get(platform, params["universal"])
+        return sizes.get(platform, sizes["universal"])
 
-    def fetch_thumbnail(
+    def generate_thumbnail(
         self,
-        query: str,
+        prompt: str,
         platform: str = "universal",
-        cache_timeout: int = 3600  # seconds
+        logo_base64: Optional[str] = None,
+        cache_timeout: int = 3600
     ) -> Dict[str, Optional[str]]:
         """
-        Fetches optimized thumbnails for all social platforms
+        Generates image based on prompt and optional logo.
+        Returns base64 image for direct frontend use.
         """
-        cache_key = f"{platform}_{quote(query)}"
+        cache_key = f"{platform}_{quote(prompt)}_{hash(logo_base64)}"
         now = time.time()
 
-        # Check and return from cache if valid
+        # Return cached image if available
         if cache_key in self.CACHE:
             timestamp, cached_result = self.CACHE[cache_key]
             if now - timestamp < cache_timeout:
                 return cached_result
 
+        width, height = self._get_platform_size(platform)
+
+        headers = {
+            "Authorization": f"Bearer {self.SDXL_API_KEY}",
+            "Content-Type": "application/json"
+        }
+
+        body = {
+            "text_prompts": [{"text": prompt}],
+            "cfg_scale": 7,
+            "height": height,
+            "width": width,
+            "samples": 1,
+            "steps": 30
+        }
+
+        # Include logo as init_image if needed (future extension)
+        if logo_base64:
+            body["init_image"] = logo_base64
+            body["image_strength"] = 0.35  # how much to preserve from logo (0.0 = use logo fully, 1.0 = ignore)
+
         try:
-            params = {
-                "query": query,
-                "client_id": self.UNSPLASH_ACCESS_KEY,
-                **self._get_platform_params(platform)
-            }
-
-            response = requests.get(self.BASE_URL, params=params, timeout=10)
-
-            if response.status_code == 403:
-                return {
-                    "error": "❌ Unsplash API quota exceeded. Please wait before making more requests.",
-                    "platform": platform,
-                    "query": query
-                }
-
+            response = requests.post(self.SDXL_ENDPOINT, headers=headers, json=body)
+            response.raise_for_status()
             data = response.json()
 
+            image_base64 = data["artifacts"][0]["base64"]
             result = {
-                "image_url": data["urls"]["regular"],
-                "photographer": data["user"]["name"],
-                "source": data["links"]["html"],
+                "image_base64": image_base64,
                 "platform": platform,
-                "download_link": data["links"].get("download_location"),
-                "color_palette": data.get("color"),
-                "attribution_text": f"Photo by {data['user']['name']} on Unsplash"
+                "prompt": prompt
             }
 
             self.CACHE[cache_key] = (now, result)
             return result
 
         except requests.exceptions.RequestException as e:
-            return {
-                "error": f"❌ API request failed: {str(e)}",
-                "platform": platform,
-                "query": query
-            }
-        except KeyError as e:
-            return {
-                "error": f"❌ Invalid API response format: {str(e)}",
-                "platform": platform
-            }
+            return {"error": str(e), "platform": platform}
+        except Exception as e:
+            return {"error": f"Unexpected Error: {str(e)}", "platform": platform}
