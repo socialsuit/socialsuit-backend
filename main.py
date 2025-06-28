@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Auth routers
+from services.auth.platform.connect_router import router as connect_router
 from services.auth.wallet.auth_router import router as wallet_auth_router
 from services.auth.email.auth_router import router as email_auth_router
 from services.auth.protected_routes import router as protected_router
@@ -90,6 +91,7 @@ app.include_router(customize_router, prefix="/api/v1")
 app.include_router(wallet_auth_router, prefix="/auth")
 app.include_router(email_auth_router, prefix="/auth")
 app.include_router(protected_router, prefix="/auth")
+app.include_router(connect_router, prefix="/auth")
 
 # -------------------------------
 # Root Endpoint

@@ -1,12 +1,15 @@
-from celery_app import celery_app
-from services.scheduler.ustils import call_meta_api, RateLimitError
+# services/scheduler/tasks.py
 
-@celery_app.task(bind=True, autoretry_for=(RateLimitError,), retry_backoff=True, retry_kwargs={'max_retries': 5})
-def schedule_post(self, user_token: dict, post_payload: dict):
-    result = call_meta_api(user_token["access_token"], post_payload)
+from celery import shared_task
+from services.scheduler.platform_post import post_to_platform
 
-    if "error" in result:
-        raise RateLimitError(result["error"]["message"])
+@shared_task
+def schedule_post(platform, user_token, post_payload):
+    try:
+        result = post_to_platform(platform, user_token, post_payload)
+        print(f"[{platform.upper()}] Post result:", result)
+        return result
+    except Exception as e:
+        print(f"[ERROR] Failed to post on {platform}: {str(e)}")
+        return {"error": str(e)}
     
-    # TODO: Log success in DB
-    return result

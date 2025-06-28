@@ -1,5 +1,6 @@
 # start_beat.py
 import asyncio
+from os import name
 from celery_beat_scheduler import beat_job
 
 async def run_beat():
