@@ -7,6 +7,7 @@ from services.platforms.linkedin_post import call_linkedin_post
 from services.platforms.youtube_post import call_youtube_post
 from services.platforms.tiktok_post import call_tiktok_post
 from services.platforms.farcaster_post import call_farcaster_post
+from services.platforms.telegram_post import call_telegram_api
 
 def post_to_platform(platform: str, user_token: dict, post_payload: dict):
     platform = platform.lower()
@@ -25,5 +26,7 @@ def post_to_platform(platform: str, user_token: dict, post_payload: dict):
         return call_tiktok_post(user_token, post_payload)
     elif platform == "farcaster":
         return call_farcaster_post(user_token, post_payload)
+    elif platform == "telegram":
+        return call_telegram_api(user_token, post_payload)
     else:
         return {"error": f"Unsupported platform: {platform}"}

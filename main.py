@@ -16,6 +16,7 @@ from services.endpoint.content import router as content_router
 from services.endpoint.ab_test import router as ab_test_router
 from services.endpoint.engage import router as engage_router
 from services.endpoint.customize import router as customize_router
+from services.endpoint import connect, callback, schedule, scheduled_post
 
 # Database setup
 from services.database.database import Base, engine
@@ -92,6 +93,10 @@ app.include_router(wallet_auth_router, prefix="/auth")
 app.include_router(email_auth_router, prefix="/auth")
 app.include_router(protected_router, prefix="/auth")
 app.include_router(connect_router, prefix="/auth")
+app.include_router(connect.router, prefix="/api/v1")
+app.include_router(callback.router, prefix="/api/v1")
+app.include_router(schedule.router, prefix="/api/v1")
+app.include_router(scheduled_post.router, prefix="/api/v1")
 
 # -------------------------------
 # Root Endpoint
