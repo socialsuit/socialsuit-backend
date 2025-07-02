@@ -2,7 +2,6 @@
 
 import os
 import requests
-from fastapi import Request
 from services.database.database import get_db
 from services.models.token_model import PlatformToken
 
@@ -25,11 +24,10 @@ def get_tiktok_login_url() -> str:
     return AUTH_URL.format(client_key=TIKTOK_CLIENT_KEY, redirect_uri=TIKTOK_REDIRECT_URI)
 
 
-def handle_tiktok_callback(request: Request):
-    code = request.query_params.get("code")
-    if not code:
-        return {"error": "No code provided"}
-
+def exchange_code(code: str, user_id: str) -> dict:
+    """
+    Exchange TikTok OAuth code for access & refresh tokens.
+    """
     data = {
         "client_key": TIKTOK_CLIENT_KEY,
         "client_secret": TIKTOK_CLIENT_SECRET,
@@ -41,18 +39,55 @@ def handle_tiktok_callback(request: Request):
     res = requests.post(TOKEN_URL, data=data)
     res_json = res.json()
 
-    access_token = res_json.get("access_token")
+    access_token = res_json.get("data", {}).get("access_token")
+    refresh_token = res_json.get("data", {}).get("refresh_token")
+    expires_in = res_json.get("data", {}).get("expires_in")
 
     if not access_token:
-        return {"error": "No access token returned"}
+        return {"error": "No access token returned", "raw": res_json}
 
     db = next(get_db())
     new_token = PlatformToken(
-        user_id="PLACEHOLDER",
+        user_id=user_id,
         platform="tiktok",
-        access_token=access_token
+        access_token=access_token,
+        refresh_token=refresh_token,
+        expires_in=expires_in
     )
     db.add(new_token)
     db.commit()
 
-    return {"msg": "TikTok connected!", "access_token": access_token}
+    return {
+        "msg": "TikTok connected!",
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "expires_in": expires_in
+    }
+
+
+def refresh_tiktok_token(refresh_token: str) -> dict:
+    """
+    Refresh TikTok access token using refresh_token.
+    """
+    data = {
+        "client_key": TIKTOK_CLIENT_KEY,
+        "client_secret": TIKTOK_CLIENT_SECRET,
+        "grant_type": "refresh_token",
+        "refresh_token": refresh_token
+    }
+
+    res = requests.post(TOKEN_URL, data=data)
+    res_json = res.json()
+
+    new_access_token = res_json.get("data", {}).get("access_token")
+    new_refresh_token = res_json.get("data", {}).get("refresh_token")
+    expires_in = res_json.get("data", {}).get("expires_in")
+
+    if not new_access_token:
+        return {"error": "No new access token returned", "raw": res_json}
+
+    return {
+        "access_token": new_access_token,
+        "refresh_token": new_refresh_token,
+        "expires_in": expires_in
+    }

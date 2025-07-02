@@ -1,28 +1,29 @@
-# services/scheduler/platforms/telegram_post.py
+# services/platforms/telegram_post.py
 
 import requests
 
 def call_telegram_api(user_token: dict, post_payload: dict):
-    """
-    user_token = {
-        "bot_token": "...",
-        "channel_id": "@channelusername"
-    }
-    post_payload = {
-        "text": "Your message here",
-        "parse_mode": "HTML"  # Optional
-    }
-    """
-    bot_token = user_token["bot_token"]
+    bot_token = user_token["access_token"]
     channel_id = user_token["channel_id"]
 
-    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    text = post_payload.get("text", "")
+    media_url = post_payload.get("media_url")
+    media_type = post_payload.get("media_type", "image")
 
-    payload = {
-        "chat_id": channel_id,
-        "text": post_payload["text"],
-        "parse_mode": post_payload.get("parse_mode", "HTML")
-    }
+    if media_type == "video":
+        api_url = f"https://api.telegram.org/bot{bot_token}/sendVideo"
+        payload = {
+            "chat_id": channel_id,
+            "video": media_url,
+            "caption": text
+        }
+    else:
+        api_url = f"https://api.telegram.org/bot{bot_token}/sendPhoto"
+        payload = {
+            "chat_id": channel_id,
+            "photo": media_url,
+            "caption": text
+        }
 
-    res = requests.post(url, json=payload)
+    res = requests.post(api_url, data=payload)
     return res.json()

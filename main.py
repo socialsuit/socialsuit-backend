@@ -16,7 +16,7 @@ from services.endpoint.content import router as content_router
 from services.endpoint.ab_test import router as ab_test_router
 from services.endpoint.engage import router as engage_router
 from services.endpoint.customize import router as customize_router
-from services.endpoint import connect, callback, schedule, scheduled_post
+from services.endpoint import connect, callback,schedule, scheduled_post
 
 # Database setup
 from services.database.database import Base, engine

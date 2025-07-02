@@ -1,71 +1,71 @@
 import uuid
 from sqlalchemy import Column, String, Boolean, DateTime, Index
-from sqlalchemy.dialects.postgresql import UUID  # For PostgreSQL UUID support
-from datetime import datetime
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from datetime import datetime, timezone
 from services.database.database import Base
 
+
 class User(Base):
-    __tablename__ = "users"
-    
-    # 1. Better ID: UUID (Universally Unique) instead of String
+    tablename = "users"   # ✅ Always double underscore
+
+    # ✅ Primary key: UUID, PostgreSQL-native
     id = Column(
-        UUID(as_uuid=True),  # Use PostgreSQL-native UUID (optional)
+        PG_UUID(as_uuid=True),
         primary_key=True,
-        default=uuid.uuid4,  # Auto-generates UUID
+        default=uuid.uuid4,
         unique=True,
         index=True
     )
-    
-    # 2. Email with length limit + stricter constraints
+
+    # ✅ Email
     email = Column(
-        String(255),  # Prevents excessively long strings
-        unique=True,
-        nullable=True,
-        index=True  # Faster queries for email-based lookups
-    )
-    
-    # 3. Hashed password (always non-null for authenticated users)
-    hashed_password = Column(
-        String(255),  # Matches common hash lengths (e.g., bcrypt)
-        nullable=True  # Allow null for OAuth/wallet-only users
-    )
-    
-    # 4. Wallet address with validation hints
-    wallet_address = Column(
-        String(42),  # Ethereum addresses are 42 chars (0x + 40 hex)
+        String(255),
         unique=True,
         nullable=True,
         index=True
     )
-    
-    # 5. Network with constrained choices (optional)
-    network = Column(
-        String(50),  # e.g., "Ethereum", "Solana", "Polygon"
+
+    # ✅ Hashed Password — nullable=True for wallet-only logins
+    hashed_password = Column(
+        String(255),
         nullable=True
     )
-    
-    # 6. Verification status
+
+    # ✅ Wallet Address — for Web3 users
+    wallet_address = Column(
+        String(42),  # 42 chars for Ethereum-style addresses
+        unique=True,
+        nullable=True,
+        index=True
+    )
+
+    network = Column(
+        String(50),
+        nullable=True
+    )
+
     is_verified = Column(
         Boolean,
         default=False,
-        nullable=False  # Explicitly non-null
-    )
-    
-    # 7. Timestamps with timezone awareness (if needed)
-    created_at = Column(
-        DateTime(timezone=True),  # For timezone support
-        default=datetime.utcnow,
-        nullable=False
-    )
-    
-    last_login = Column(
-        DateTime(timezone=True),
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,  # Auto-updates on login
         nullable=False
     )
 
-    # 8. Composite index for wallet + network (if often queried together)
-    __table_args__ = (
+    created_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
+
+    last_login = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
+
+    table_args = (
         Index('idx_wallet_network', 'wallet_address', 'network'),
     )
+
+    def repr(self):
+        return f"<User(id={self.id}, email={self.email}, wallet={self.wallet_address})>"

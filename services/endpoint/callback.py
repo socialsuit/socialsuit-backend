@@ -8,93 +8,104 @@ from services.auth.platform.linkedin_auth import exchange_code as exchange_linke
 from services.auth.platform.twitter_auth import exchange_code as exchange_twitter
 from services.auth.platform.youtube_auth import exchange_code as exchange_youtube
 from services.auth.platform.tiktok_auth import exchange_code as exchange_tiktok
-from services.auth.platform.farcaster_auth import exchange_code as exchange_farcaster
-from services.auth.platform.telegram_auth import verify_telegram
+from services.auth.platform.farcaster_auth import handle_farcaster_callback as exchange_farcaster
+from services.auth.platform.telegram_auth import handle_telegram_callback as exchange_telegram
 
 router = APIRouter(prefix="/callback", tags=["Platform Callback"])
 
 # ✅ Meta Callback (Facebook/Instagram)
 @router.get("/meta")
-async def callback_meta(code: str = Query(...)):
+async def callback_meta(
+    code: str = Query(...),
+    user_id: str = Query(...)
+):
     """
-    Meta (FB/IG) redirects here with ?code=
+    Meta (FB/IG) redirects here with ?code=&user_id=
     """
     try:
-        result = exchange_meta(code)
+        result = exchange_meta(code, user_id)
         return JSONResponse(content={"success": True, "details": result})
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 # ✅ LinkedIn Callback
 @router.get("/linkedin")
-async def callback_linkedin(code: str = Query(...)):
+async def callback_linkedin(
+    code: str = Query(...),
+    user_id: str = Query(...)
+):
     """
-    LinkedIn OAuth callback.
+    LinkedIn redirects here with ?code=
     """
     try:
-        result = exchange_linkedin(code)
+        result = exchange_linkedin(code, user_id)
         return JSONResponse(content={"success": True, "details": result})
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 # ✅ Twitter Callback
 @router.get("/twitter")
-async def callback_twitter(code: str = Query(...)):
+async def callback_twitter(
+    code: str = Query(...),
+    user_id: str = Query(...)
+):
     """
-    Twitter OAuth callback.
+    Twitter redirects here with ?code=
     """
     try:
-        result = exchange_twitter(code)
+        result = exchange_twitter(code, user_id)
         return JSONResponse(content={"success": True, "details": result})
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-
 # ✅ YouTube Callback
 @router.get("/youtube")
-async def callback_youtube(code: str = Query(...)):
+async def callback_youtube(
+    code: str = Query(...),
+    user_id: str = Query(...)
+):
     """
-    YouTube OAuth callback.
+    YouTube redirects here with ?code=
     """
     try:
-        result = exchange_youtube(code)
+        result = exchange_youtube(code, user_id)
         return JSONResponse(content={"success": True, "details": result})
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-
 # ✅ TikTok Callback
 @router.get("/tiktok")
-async def callback_tiktok(code: str = Query(...)):
+async def callback_tiktok(
+    code: str = Query(...),
+    user_id: str = Query(...)
+):
     """
-    TikTok OAuth callback.
+    TikTok redirects here with ?code=
     """
     try:
-        result = exchange_tiktok(code)
+        result = exchange_tiktok(code, user_id)
         return JSONResponse(content={"success": True, "details": result})
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-
 # ✅ Farcaster Callback
 @router.get("/farcaster")
-async def callback_farcaster(code: str = Query(...)):
-    """
-    Farcaster auth callback.
-    """
+async def callback_farcaster(
+    signature: str = Query(...),
+    address: str = Query(...),
+    nonce: str = Query(...)
+):
     try:
-        result = exchange_farcaster(code)
+        result = exchange_farcaster(signature=signature, address=address, nonce=nonce)
         return JSONResponse(content={"success": True, "details": result})
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 # ✅ Telegram does not redirect with ?code — uses hash verification
 @router.post("/telegram")
-async def callback_telegram(request: Request):
-    """
-    Telegram Login Widget posts data — verify hash here.
-    """
-    data = await request.json()
+async def callback_telegram(
+    bot_token: str = Query(...),
+    channel_id: str = Query(...)
+):
     try:
-        verified = verify_telegram(data)
-        return JSONResponse(content={"success": True, "details": verified})
+        result = exchange_telegram(bot_token=bot_token, channel_id=channel_id)
+        return JSONResponse(content={"success": True, "details": result})
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-

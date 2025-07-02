@@ -1,37 +1,61 @@
 # services/scheduler/celery_beat_scheduler.py
 
-import asyncio
 from datetime import datetime
 from services.scheduler.dispatcher import dispatch_scheduled_posts
 from services.database.database import get_db_session
 from services.models.scheduled_post_model import ScheduledPost, PostStatus
+from services.models.token_model import PlatformToken
 
-async def beat_job():
+def beat_job():
+    """
+    Runs every X minutes:
+    - Finds due scheduled posts
+    - Looks up user tokens for each platform
+    - Dispatches them for posting
+    Runs inside Celery Beat.
+    """
     db = get_db_session()
     now = datetime.utcnow()
-    
-    posts = db.query(ScheduledPost).filter(
+
+    due_posts = db.query(ScheduledPost).filter(
         ScheduledPost.status == PostStatus.pending,
         ScheduledPost.scheduled_time <= now
     ).all()
-    
-    if posts:
-        payload = []
-        for post in posts:
-            payload.append({
+
+    if due_posts:
+        payloads = []
+
+        for post in due_posts:
+            # ✅ 1️⃣ Find matching user token for this post's user + platform
+            user_token = db.query(PlatformToken).filter(
+                PlatformToken.user_id == post.user_id,
+                PlatformToken.platform == post.platform.lower()
+            ).first()
+
+            if not user_token:
+                print(f"[WARN] No token found for {post.platform} user={post.user_id}")
+                continue
+
+            # ✅ 2️⃣ Prepare payload
+            payloads.append({
                 "user_token": {
-                    "access_token": "PLACEHOLDER",  # link to real token table
-                    "page_id": "PLACEHOLDER",
-                    "ig_user_id": "PLACEHOLDER"
+                    "access_token": user_token.access_token,
+                    "refresh_token": user_token.refresh_token,
+                    "channel_id": user_token.channel_id,
+                    # Add more fields if needed (page_id, ig_user_id, etc)
                 },
                 "post_payload": {
                     "platform": post.platform,
                     **post.post_payload
                 }
             })
-            post.status = PostStatus.retry
+
+            # ✅ 3️⃣ Mark post as processing/retry
+            post.status = PostStatus.retry  # or PostStatus.processing
 
         db.commit()
-        dispatch_scheduled_posts(payload)
+
+        # ✅ 4️⃣ Dispatch batch to Celery workers
+        dispatch_scheduled_posts(payloads)
 
     db.close()
