@@ -10,7 +10,7 @@ class PostStatus(str, enum.Enum):
     retry = "retry"
 
 class ScheduledPost(Base):
-    tablename = "scheduled_posts"
+    __tablename__= "scheduled_posts" 
 
     id = Column(Integer, primary_key=True, index=True)
     

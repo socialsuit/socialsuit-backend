@@ -1,5 +1,3 @@
-# services/scheduler/tasks.py
-
 from celery import shared_task
 from services.scheduler.platform_post import post_to_platform
 from services.refresh.meta_refresh import refresh_meta_token
@@ -8,49 +6,61 @@ from services.refresh.twitter_refresh import refresh_twitter_token
 from services.refresh.youtube_refresh import refresh_youtube_token
 from services.refresh.tiktok_refresh import refresh_tiktok_token
 
-# OPTIONAL: Add these if you ever have refresh for Telegram/Farcaster
-# from services.refresh.telegram_refresh import refresh_telegram_token
-# from services.refresh.farcaster_refresh import refresh_farcaster_token
+from services.scheduler.dispatcher import dispatch_scheduled_posts  # ✅ Directly use dispatcher, no loop!
+from services.utils.logger_config import setup_logger
 
-from services.scheduler.celery_beat_scheduler import beat_job
+logger = setup_logger("scheduler_tasks")  # ✅ FIX: Proper logger name
 
-
-@shared_task
-def schedule_post(platform, user_token, post_payload):
+@shared_task(bind=True, max_retries=3, default_retry_delay=60)
+def schedule_post(self, platform, user_token, post_payload):
     """
     Runs when a scheduled post needs to be published.
+    Retries up to 3 times if fails.
     """
+    logger.info(f"[SCHEDULE_POST] Posting on platform: {platform}")
+
     try:
         result = post_to_platform(platform, user_token, post_payload)
-        print(f"[{platform.upper()}] ✅ Post result:", result)
+        logger.info(f"[SCHEDULE_POST] Post success for {platform} — Response: {result}")
         return result
+
     except Exception as e:
-        print(f"[{platform.upper()}] ❌ Post failed: {str(e)}")
-        return {"error": str(e)}
+        logger.exception(f"[SCHEDULE_POST] Post failed for {platform}: {e}")
+        try:
+            self.retry(exc=e)
+        except self.MaxRetriesExceededError:
+            logger.critical(f"[SCHEDULE_POST] Max retries exceeded for platform: {platform}")
+            return {"error": str(e)}
 
 
 @shared_task
 def auto_refresh_tokens():
     """
-    Periodic task: Refresh tokens for all supported platforms.
+    Periodic Celery Beat task:
+    Refresh tokens for all supported platforms.
     """
-    refresh_meta_token()
-    refresh_linkedin_token()
-    refresh_twitter_token()
-    refresh_youtube_token()
-    refresh_tiktok_token()
-    # If you build these later:
-    # refresh_telegram_token()
-    # refresh_farcaster_token()
+    logger.info("[REFRESH] Starting refresh of all platform tokens...")
 
-    print("[INFO] ✅ All tokens refreshed successfully.")
+    try:
+        refresh_meta_token()
+        refresh_linkedin_token()
+        refresh_twitter_token()
+        refresh_youtube_token()
+        refresh_tiktok_token()
+        logger.info("[REFRESH] All tokens refreshed successfully.")
+    except Exception as e:
+        logger.exception(f"[REFRESH] Token refresh failed: {e}")
 
 
 @shared_task
 def scheduled_post_dispatcher():
     """
-    Periodic task: Dispatch due scheduled posts.
+    Periodic Celery Beat task:
+    Find & dispatch due scheduled posts.
     """
-    print("[INFO] 🚀 Running scheduled post dispatcher...")
-    beat_job()
-    print("[INFO] ✅ Dispatcher run finished.")
+    logger.info("[DISPATCHER] Running scheduled post dispatcher job...")
+    try:
+        dispatch_scheduled_posts()  # ✅ Call dispatcher directly
+    except Exception as e:
+        logger.exception(f"[DISPATCHER] Error during dispatcher: {e}")
+    logger.info("[DISPATCHER] Dispatcher finished.")
