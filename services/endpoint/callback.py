@@ -2,6 +2,8 @@
 
 from fastapi import APIRouter, Request, HTTPException, Query
 from fastapi.responses import JSONResponse, RedirectResponse
+from pydantic import BaseModel
+from typing import Dict, Any, Optional
 
 from services.auth.platform.meta_auth import exchange_code as exchange_meta
 from services.auth.platform.linkedin_auth import exchange_code as exchange_linkedin
@@ -11,50 +13,72 @@ from services.auth.platform.tiktok_auth import exchange_code as exchange_tiktok
 from services.auth.platform.farcaster_auth import handle_farcaster_callback as exchange_farcaster
 from services.auth.platform.telegram_auth import handle_telegram_callback as exchange_telegram
 
-router = APIRouter(prefix="/callback", tags=["Platform Callback"])
+class PlatformAuthResponse(BaseModel):
+    success: bool
+    platform: str
+    user_id: str
+    token_info: Optional[Dict[str, Any]] = None
+    message: Optional[str] = None
+
+router = APIRouter(tags=["Platform Callback"])
 
 # ✅ Meta Callback (Facebook/Instagram)
-@router.get("/meta")
+@router.get("/meta", response_model=PlatformAuthResponse, summary="Meta authentication callback", description="Handles the OAuth callback from Meta (Facebook/Instagram)")
 async def callback_meta(
-    code: str = Query(...),
-    user_id: str = Query(...)
+    code: str = Query(..., description="Authorization code from Meta"),
+    user_id: str = Query(..., description="User ID for the authentication")
 ):
     """
     Meta (FB/IG) redirects here with ?code=&user_id=
     """
     try:
         result = exchange_meta(code, user_id)
-        return JSONResponse(content={"success": True, "details": result})
+        return PlatformAuthResponse(
+            success=True,
+            platform="meta",
+            user_id=user_id,
+            token_info=result
+        )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 # ✅ LinkedIn Callback
-@router.get("/linkedin")
+@router.get("/linkedin", response_model=PlatformAuthResponse, summary="LinkedIn authentication callback", description="Handles the OAuth callback from LinkedIn")
 async def callback_linkedin(
-    code: str = Query(...),
-    user_id: str = Query(...)
+    code: str = Query(..., description="Authorization code from LinkedIn"),
+    user_id: str = Query(..., description="User ID for the authentication")
 ):
     """
     LinkedIn redirects here with ?code=
     """
     try:
         result = exchange_linkedin(code, user_id)
-        return JSONResponse(content={"success": True, "details": result})
+        return PlatformAuthResponse(
+            success=True,
+            platform="linkedin",
+            user_id=user_id,
+            token_info=result
+        )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 # ✅ Twitter Callback
-@router.get("/twitter")
+@router.get("/twitter", response_model=PlatformAuthResponse, summary="Twitter authentication callback", description="Handles the OAuth callback from Twitter")
 async def callback_twitter(
-    code: str = Query(...),
-    user_id: str = Query(...)
+    code: str = Query(..., description="Authorization code from Twitter"),
+    user_id: str = Query(..., description="User ID for the authentication")
 ):
     """
     Twitter redirects here with ?code=
     """
     try:
         result = exchange_twitter(code, user_id)
-        return JSONResponse(content={"success": True, "details": result})
+        return PlatformAuthResponse(
+            success=True,
+            platform="twitter",
+            user_id=user_id,
+            token_info=result
+        )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 # ✅ YouTube Callback

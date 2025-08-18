@@ -1,0 +1,155 @@
+{
+  "summary": {
+    "total_tests": 24,
+    "passed_tests": 13,
+    "failed_tests": 11,
+    "success_rate": 54.166666666666664,
+    "duration": 0.8460183143615723
+  },
+  "results": [
+    {
+      "test": "File Exists - services/security/rate_limiter.py",
+      "passed": true,
+      "details": "File exists",
+      "timestamp": "2025-08-10T18:19:54.479269"
+    },
+    {
+      "test": "File Exists - services/security/validation_models.py",
+      "passed": true,
+      "details": "File exists",
+      "timestamp": "2025-08-10T18:19:54.479749"
+    },
+    {
+      "test": "File Exists - services/security/security_audit.py",
+      "passed": true,
+      "details": "File exists",
+      "timestamp": "2025-08-10T18:19:54.480655"
+    },
+    {
+      "test": "File Exists - services/security/security_config.py",
+      "passed": true,
+      "details": "File exists",
+      "timestamp": "2025-08-10T18:19:54.481153"
+    },
+    {
+      "test": "File Exists - services/security/security_middleware.py",
+      "passed": true,
+      "details": "File exists",
+      "timestamp": "2025-08-10T18:19:54.481895"
+    },
+    {
+      "test": "File Exists - services/endpoint/secure_analytics_api.py",
+      "passed": true,
+      "details": "File exists",
+      "timestamp": "2025-08-10T18:19:54.485223"
+    },
+    {
+      "test": "File Exists - services/endpoint/secure_scheduled_post_api.py",
+      "passed": true,
+      "details": "File exists",
+      "timestamp": "2025-08-10T18:19:54.488823"
+    },
+    {
+      "test": "File Exists - security_manager.py",
+      "passed": true,
+      "details": "File exists",
+      "timestamp": "2025-08-10T18:19:54.490544"
+    },
+    {
+      "test": "File Exists - SECURITY_IMPROVEMENTS.md",
+      "passed": true,
+      "details": "File exists",
+      "timestamp": "2025-08-10T18:19:54.491217"
+    },
+    {
+      "test": "Input Validation Import",
+      "passed": false,
+      "details": "Failed to import validation models: cannot import name 'URLValidation' from 'services.security.validation_models' (C:\\Users\\hhp\\social_suit\\services\\security\\validation_models.py)",
+      "timestamp": "2025-08-10T18:19:54.767625"
+    },
+    {
+      "test": "Rate Limiting Config",
+      "passed": false,
+      "details": "Error: RateLimitConfig.__init__() got an unexpected keyword argument 'default_requests_per_minute'",
+      "timestamp": "2025-08-10T18:19:55.290205"
+    },
+    {
+      "test": "Security Config Import",
+      "passed": false,
+      "details": "Failed to import security config: `BaseSettings` has been moved to the `pydantic-settings` package. See https://docs.pydantic.dev/2.11/migration/#basesettings-has-moved-to-pydantic-settings for more details.\n\nFor further information visit https://errors.pydantic.dev/2.11/u/import-error",
+      "timestamp": "2025-08-10T18:19:55.293140"
+    },
+    {
+      "test": "Security Auditor Creation",
+      "passed": true,
+      "details": "Security auditor created successfully",
+      "timestamp": "2025-08-10T18:19:55.298335"
+    },
+    {
+      "test": "Security Audit",
+      "passed": false,
+      "details": "Error: SecurityFinding.__init__() got an unexpected keyword argument 'severity'",
+      "timestamp": "2025-08-10T18:19:55.302640"
+    },
+    {
+      "test": "SQL Injection - '; DROP TABLE users;...",
+      "passed": false,
+      "details": "Should reject SQL injection payload",
+      "timestamp": "2025-08-10T18:19:55.306380"
+    },
+    {
+      "test": "SQL Injection - 1' OR '1'='1...",
+      "passed": false,
+      "details": "Should reject SQL injection payload",
+      "timestamp": "2025-08-10T18:19:55.307612"
+    },
+    {
+      "test": "SQL Injection - admin'--...",
+      "passed": false,
+      "details": "Should reject SQL injection payload",
+      "timestamp": "2025-08-10T18:19:55.308849"
+    },
+    {
+      "test": "SQL Injection - ' UNION SELECT * FRO...",
+      "passed": false,
+      "details": "Should reject SQL injection payload",
+      "timestamp": "2025-08-10T18:19:55.310393"
+    },
+    {
+      "test": "SQL Injection - 1; DELETE FROM posts...",
+      "passed": false,
+      "details": "Should reject SQL injection payload",
+      "timestamp": "2025-08-10T18:19:55.311487"
+    },
+    {
+      "test": "XSS - <script>alert('xss')...",
+      "passed": false,
+      "details": "Should reject XSS payload",
+      "timestamp": "2025-08-10T18:19:55.313443"
+    },
+    {
+      "test": "XSS - <img src=x onerror=a...",
+      "passed": true,
+      "details": "Correctly rejected XSS payload",
+      "timestamp": "2025-08-10T18:19:55.315960"
+    },
+    {
+      "test": "XSS - javascript:alert('xs...",
+      "passed": true,
+      "details": "Correctly rejected XSS payload",
+      "timestamp": "2025-08-10T18:19:55.319256"
+    },
+    {
+      "test": "XSS - <svg onload=alert('x...",
+      "passed": true,
+      "details": "Correctly rejected XSS payload",
+      "timestamp": "2025-08-10T18:19:55.321936"
+    },
+    {
+      "test": "XSS - ';alert('xss');//...",
+      "passed": false,
+      "details": "Should reject XSS payload",
+      "timestamp": "2025-08-10T18:19:55.322550"
+    }
+  ]
+}

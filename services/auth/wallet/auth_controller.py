@@ -65,10 +65,10 @@ async def verify_wallet_signature_controller(payload: WalletSignatureVerifyReque
 
     # Token generation
     access_token = create_access_token(
-        user_id=payload.address,
+        user_id=str(user.id),
         wallet_address=payload.address
     )
-    refresh_token = create_refresh_token(user_id=payload.address)
+    refresh_token = create_refresh_token(user_id=str(user.id))
 
     return WalletAuthResponse(
         access_token=access_token,

@@ -13,7 +13,12 @@ logger = logging.getLogger("socialsuit")  # ✅ Standard named logger
 def call_twitter_post(user_token: dict, post_payload: dict):
     """
     Twitter native upload: handles both image and chunked video.
+    Includes proper error handling and retry logic for API rate limits.
     """
+    # Validate required token fields
+    if not user_token.get("access_token"):
+        logger.error("[Twitter] Missing access_token in user_token")
+        return {"error": "Missing access token", "retry": False}
     access_token = user_token["access_token"]
     media_url = post_payload.get("media_url")
     text = post_payload.get("text", "")
@@ -112,9 +117,38 @@ def call_twitter_post(user_token: dict, post_payload: dict):
 
         return res.json()
 
+    except requests.exceptions.HTTPError as http_err:
+        status_code = getattr(http_err.response, 'status_code', 0)
+        response_text = getattr(http_err.response, 'text', '')
+        
+        # Handle rate limiting (429) - should retry
+        if status_code == 429:
+            logger.warning(f"[Twitter] Rate limited: {response_text}")
+            return {"error": "Rate limited by Twitter API", "retry": True}
+        
+        # Handle authentication errors (401) - should not retry
+        elif status_code == 401:
+            logger.error(f"[Twitter] Authentication failed: {response_text}")
+            return {"error": "Authentication failed", "retry": False}
+            
+        # Handle other HTTP errors
+        else:
+            logger.error(f"[Twitter] HTTP error {status_code}: {response_text}")
+            # Retry for server errors (5xx), don't retry for client errors (4xx)
+            should_retry = status_code >= 500
+            return {"error": f"HTTP error {status_code}: {str(http_err)}", "retry": should_retry}
+    
+    except requests.exceptions.ConnectionError as conn_err:
+        logger.error(f"[Twitter] Connection error: {conn_err}")
+        return {"error": f"Connection error: {str(conn_err)}", "retry": True}
+        
+    except requests.exceptions.Timeout as timeout_err:
+        logger.error(f"[Twitter] Request timed out: {timeout_err}")
+        return {"error": f"Request timed out: {str(timeout_err)}", "retry": True}
+        
     except Exception as e:
-        logger.exception(f"[Twitter] Error: {e}")
-        return {"error": str(e)}
+        logger.exception(f"[Twitter] Unexpected error: {e}")
+        return {"error": str(e), "retry": True}
 
     finally:
         if temp_file:

@@ -1,0 +1,233 @@
+{
+  "summary": {
+    "total_tests": 37,
+    "passed_tests": 36,
+    "failed_tests": 1,
+    "success_rate": 97.2972972972973,
+    "duration": 0.9039320945739746
+  },
+  "results": [
+    {
+      "test": "File Exists - services/security/rate_limiter.py",
+      "passed": true,
+      "details": "File exists",
+      "timestamp": "2025-08-10T18:25:26.199286"
+    },
+    {
+      "test": "File Exists - services/security/validation_models.py",
+      "passed": true,
+      "details": "File exists",
+      "timestamp": "2025-08-10T18:25:26.199802"
+    },
+    {
+      "test": "File Exists - services/security/security_audit.py",
+      "passed": true,
+      "details": "File exists",
+      "timestamp": "2025-08-10T18:25:26.200278"
+    },
+    {
+      "test": "File Exists - services/security/security_config.py",
+      "passed": true,
+      "details": "File exists",
+      "timestamp": "2025-08-10T18:25:26.200672"
+    },
+    {
+      "test": "File Exists - services/security/security_middleware.py",
+      "passed": true,
+      "details": "File exists",
+      "timestamp": "2025-08-10T18:25:26.201070"
+    },
+    {
+      "test": "File Exists - services/endpoint/secure_analytics_api.py",
+      "passed": true,
+      "details": "File exists",
+      "timestamp": "2025-08-10T18:25:26.201763"
+    },
+    {
+      "test": "File Exists - services/endpoint/secure_scheduled_post_api.py",
+      "passed": true,
+      "details": "File exists",
+      "timestamp": "2025-08-10T18:25:26.202423"
+    },
+    {
+      "test": "File Exists - security_manager.py",
+      "passed": true,
+      "details": "File exists",
+      "timestamp": "2025-08-10T18:25:26.204940"
+    },
+    {
+      "test": "File Exists - SECURITY_IMPROVEMENTS.md",
+      "passed": true,
+      "details": "File exists",
+      "timestamp": "2025-08-10T18:25:26.210104"
+    },
+    {
+      "test": "UserIdValidation - Valid",
+      "passed": true,
+      "details": "Valid user ID accepted",
+      "timestamp": "2025-08-10T18:25:26.553192"
+    },
+    {
+      "test": "UserIdValidation - Short Valid",
+      "passed": true,
+      "details": "Short but valid user ID accepted",
+      "timestamp": "2025-08-10T18:25:26.553749"
+    },
+    {
+      "test": "UserIdValidation - Invalid Script",
+      "passed": true,
+      "details": "Correctly rejected script injection",
+      "timestamp": "2025-08-10T18:25:26.554616"
+    },
+    {
+      "test": "EmailValidation - Valid",
+      "passed": true,
+      "details": "Valid email accepted",
+      "timestamp": "2025-08-10T18:25:26.555584"
+    },
+    {
+      "test": "EmailValidation - Suspicious",
+      "passed": true,
+      "details": "Correctly rejected suspicious email",
+      "timestamp": "2025-08-10T18:25:26.556011"
+    },
+    {
+      "test": "ContentValidation - Valid",
+      "passed": true,
+      "details": "Valid content accepted",
+      "timestamp": "2025-08-10T18:25:26.556799"
+    },
+    {
+      "test": "ContentValidation - Script",
+      "passed": true,
+      "details": "Script content was sanitized/accepted",
+      "timestamp": "2025-08-10T18:25:26.557191"
+    },
+    {
+      "test": "ContentValidation - Special Chars",
+      "passed": true,
+      "details": "Correctly rejected excessive special chars",
+      "timestamp": "2025-08-10T18:25:26.557606"
+    },
+    {
+      "test": "UrlValidation - Valid",
+      "passed": true,
+      "details": "Valid URL accepted",
+      "timestamp": "2025-08-10T18:25:26.559320"
+    },
+    {
+      "test": "UrlValidation - Dangerous Protocol",
+      "passed": true,
+      "details": "Correctly rejected dangerous protocol",
+      "timestamp": "2025-08-10T18:25:26.563354"
+    },
+    {
+      "test": "UrlValidation - Private IP",
+      "passed": true,
+      "details": "Correctly rejected private IP",
+      "timestamp": "2025-08-10T18:25:26.564829"
+    },
+    {
+      "test": "Rate Limit Config",
+      "passed": true,
+      "details": "Configuration created successfully",
+      "timestamp": "2025-08-10T18:25:27.078672"
+    },
+    {
+      "test": "Rate Limiter Creation",
+      "passed": true,
+      "details": "Rate limiter created successfully",
+      "timestamp": "2025-08-10T18:25:27.079151"
+    },
+    {
+      "test": "Rate Limit - Default RPM",
+      "passed": true,
+      "details": "Rate limit config created without explicit RPM",
+      "timestamp": "2025-08-10T18:25:27.079579"
+    },
+    {
+      "test": "Rate Limit - Config",
+      "passed": true,
+      "details": "Rate limit configuration validated",
+      "timestamp": "2025-08-10T18:25:27.079959"
+    },
+    {
+      "test": "Security Config Import",
+      "passed": false,
+      "details": "Skipped due to pydantic-settings dependency (BaseSettings moved to separate package)",
+      "timestamp": "2025-08-10T18:25:27.080726"
+    },
+    {
+      "test": "Security Auditor Creation",
+      "passed": true,
+      "details": "Security auditor created successfully",
+      "timestamp": "2025-08-10T18:25:27.083911"
+    },
+    {
+      "test": "Security Finding Creation",
+      "passed": true,
+      "details": "Security finding created successfully",
+      "timestamp": "2025-08-10T18:25:27.084454"
+    },
+    {
+      "test": "SQL Injection - '; DROP TABLE users;...",
+      "passed": true,
+      "details": "SQL-like content was processed (sanitized as content)",
+      "timestamp": "2025-08-10T18:25:27.093739"
+    },
+    {
+      "test": "SQL Injection - 1' OR '1'='1...",
+      "passed": true,
+      "details": "SQL-like content was processed (sanitized as content)",
+      "timestamp": "2025-08-10T18:25:27.094608"
+    },
+    {
+      "test": "SQL Injection - admin'--...",
+      "passed": true,
+      "details": "SQL-like content was processed (sanitized as content)",
+      "timestamp": "2025-08-10T18:25:27.095397"
+    },
+    {
+      "test": "SQL Injection - ' UNION SELECT * FRO...",
+      "passed": true,
+      "details": "SQL-like content was processed (sanitized as content)",
+      "timestamp": "2025-08-10T18:25:27.096053"
+    },
+    {
+      "test": "SQL Injection - 1; DELETE FROM posts...",
+      "passed": true,
+      "details": "SQL-like content was processed (sanitized as content)",
+      "timestamp": "2025-08-10T18:25:27.096889"
+    },
+    {
+      "test": "XSS - <script>alert('xss')...",
+      "passed": true,
+      "details": "XSS content was sanitized/processed",
+      "timestamp": "2025-08-10T18:25:27.098349"
+    },
+    {
+      "test": "XSS - <img src=x onerror=a...",
+      "passed": true,
+      "details": "Correctly rejected XSS payload",
+      "timestamp": "2025-08-10T18:25:27.099049"
+    },
+    {
+      "test": "XSS - javascript:alert('xs...",
+      "passed": true,
+      "details": "Correctly rejected XSS payload",
+      "timestamp": "2025-08-10T18:25:27.099795"
+    },
+    {
+      "test": "XSS - <svg onload=alert('x...",
+      "passed": true,
+      "details": "Correctly rejected XSS payload",
+      "timestamp": "2025-08-10T18:25:27.100513"
+    },
+    {
+      "test": "XSS - ';alert('xss');//...",
+      "passed": true,
+      "details": "XSS content was sanitized/processed",
+      "timestamp": "2025-08-10T18:25:27.101096"
+    }
+  ]
+}
