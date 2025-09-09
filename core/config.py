@@ -18,6 +18,11 @@ class Settings(BaseSettings):
 
     # JWT Secret
     JWT_SECRET: str
+    
+    # OpenRouter API for DeepSeek integration
+    OPENROUTER_API_KEY: str
+    OPENROUTER_API_URL: str = "https://openrouter.ai/api/v1/chat/completions"
+    OPENROUTER_MODEL: str = "deepseek/deepseek-r1-distill-llama-70b"
 
     # Optional: Environment Mode
     ENVIRONMENT: str = "development"

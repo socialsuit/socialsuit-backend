@@ -1,0 +1,54 @@
+# CODEOWNERS file for Social Suit and Sparkr Backend projects
+#
+# This file defines code ownership and review requirements for different parts of the codebase.
+# Each line is a file pattern followed by one or more owners.
+# Order is important; the last matching pattern takes precedence.
+#
+# For more information, see:
+# https://docs.github.com/en/repositories/managing-your-repository-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+* @project-lead @tech-lead
+
+# Social Suit specific code
+/social-suit/ @social-suit-team-lead
+/social-suit/src/ @social-suit-team-lead @frontend-developers
+/social-suit/src/api/ @api-team
+/social-suit/src/components/ @ui-team
+/social-suit/src/pages/ @ui-team
+/social-suit/src/store/ @state-management-team
+
+# Sparkr Backend specific code
+/sparkr-backend/ @sparkr-backend-team-lead
+/sparkr-backend/app/ @sparkr-backend-team-lead @backend-developers
+/sparkr-backend/app/api/ @api-team
+/sparkr-backend/app/core/ @core-team
+/sparkr-backend/app/db/ @database-team
+
+# Shared library code
+/shared/ @tech-lead @shared-lib-maintainers
+
+# Documentation
+/docs/ @documentation-team @tech-lead
+*.md @documentation-team
+
+# Infrastructure and CI/CD
+/.github/ @devops-team @tech-lead
+/docker/ @devops-team
+/k8s/ @devops-team
+Dockerfile* @devops-team
+docker-compose*.yml @devops-team
+
+# Configuration files
+*.json @tech-lead
+*.yaml @tech-lead
+*.yml @tech-lead
+
+# Test files
+/social-suit/tests/ @qa-team @social-suit-team-lead
+/sparkr-backend/tests/ @qa-team @sparkr-backend-team-lead
+
+# Security-sensitive areas
+/social-suit/src/auth/ @security-team @social-suit-team-lead
+/sparkr-backend/app/auth/ @security-team @sparkr-backend-team-lead
+/sparkr-backend/app/core/security.py @security-team

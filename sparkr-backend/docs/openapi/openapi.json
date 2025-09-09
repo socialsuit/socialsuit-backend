@@ -1,0 +1,523 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "Sparkr API",
+    "description": "API for Sparkr social media campaign management",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/auth/token": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Login",
+        "description": "Authenticate user and get access token",
+        "operationId": "login_for_access_token",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/OAuth2PasswordRequestForm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Register",
+        "description": "Register a new user",
+        "operationId": "register_user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns": {
+      "get": {
+        "tags": ["Campaigns"],
+        "summary": "Get Campaigns",
+        "description": "Get all campaigns",
+        "operationId": "get_campaigns",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CampaignResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": ["Campaigns"],
+        "summary": "Create Campaign",
+        "description": "Create a new campaign",
+        "operationId": "create_campaign",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Root",
+        "operationId": "root",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Health Check",
+        "description": "Health check endpoint\n\nReturns basic application health information and status.\nThis endpoint is exempt from rate limiting.",
+        "operationId": "health_check",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/healthz": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Liveness Check",
+        "description": "Checks if the application is running",
+        "operationId": "liveness_check",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/readyz": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Readiness Check",
+        "description": "Checks if the application is ready to accept requests",
+        "operationId": "readiness_check",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CampaignCreate": {
+        "title": "CampaignCreate",
+        "type": "object",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "start_date": {
+            "title": "Start Date",
+            "type": "string",
+            "format": "date-time"
+          },
+          "end_date": {
+            "title": "End Date",
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "start_date",
+          "end_date"
+        ]
+      },
+      "CampaignResponse": {
+        "title": "CampaignResponse",
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "start_date": {
+            "title": "Start Date",
+            "type": "string",
+            "format": "date-time"
+          },
+          "end_date": {
+            "title": "End Date",
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "start_date",
+          "end_date",
+          "status",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "HTTPValidationError": {
+        "title": "HTTPValidationError",
+        "type": "object",
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            }
+          }
+        }
+      },
+      "HealthStatus": {
+        "title": "HealthStatus",
+        "type": "object",
+        "properties": {
+          "status": {
+            "title": "Status",
+            "type": "string",
+            "enum": ["healthy", "unhealthy"]
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          },
+          "checks": {
+            "title": "Checks",
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "title": "Status",
+                  "type": "string",
+                  "enum": ["healthy", "unhealthy"]
+                },
+                "details": {
+                  "title": "Details",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "status",
+          "version"
+        ]
+      },
+      "OAuth2PasswordRequestForm": {
+        "title": "OAuth2PasswordRequestForm",
+        "type": "object",
+        "properties": {
+          "username": {
+            "title": "Username",
+            "type": "string"
+          },
+          "password": {
+            "title": "Password",
+            "type": "string",
+            "format": "password"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "Token": {
+        "title": "Token",
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "title": "Access Token",
+            "type": "string"
+          },
+          "token_type": {
+            "title": "Token Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "access_token",
+          "token_type"
+        ]
+      },
+      "TokenData": {
+        "title": "TokenData",
+        "type": "object",
+        "properties": {
+          "email": {
+            "title": "Email",
+            "type": "string"
+          }
+        }
+      },
+      "UserCreate": {
+        "title": "UserCreate",
+        "type": "object",
+        "properties": {
+          "email": {
+            "title": "Email",
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "title": "Password",
+            "type": "string",
+            "format": "password"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "full_name"
+        ]
+      },
+      "UserResponse": {
+        "title": "UserResponse",
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "is_superuser": {
+            "title": "Is Superuser",
+            "type": "boolean"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "full_name",
+          "is_active",
+          "is_superuser",
+          "created_at"
+        ]
+      },
+      "ValidationError": {
+        "title": "ValidationError",
+        "type": "object",
+        "properties": {
+          "loc": {
+            "title": "Location",
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            }
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Enter JWT token"
+      }
+    }
+  }
+}

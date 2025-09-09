@@ -14,6 +14,12 @@ class AuthType(PyEnum):
     HYBRID = "hybrid"  # User has both email and wallet linked
 
 
+class UserRole(PyEnum):
+    USER = "user"
+    ADMIN = "admin"
+    MODERATOR = "moderator"
+
+
 class User(Base):
     __tablename__ = "users"   # Fixed: double underscore for tablename
 
@@ -45,6 +51,14 @@ class User(Base):
         String(42),  # 42 chars for Ethereum-style addresses
         unique=True,
         nullable=True,
+        index=True
+    )
+    
+    # ✅ User role for access control
+    role = Column(
+        Enum(UserRole),
+        nullable=False,
+        default=UserRole.USER,
         index=True
     )
 

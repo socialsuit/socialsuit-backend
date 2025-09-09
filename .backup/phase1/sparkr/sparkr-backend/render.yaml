@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: sparkr-backend
+    env: docker
+    plan: standard
+    dockerfilePath: ./Dockerfile
+    dockerCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DB_URL
+        sync: false # This is a secret that you'll set in the Render dashboard
+      - key: REDIS_URL
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: DEBUG
+        value: false
+      - key: TWITTER_BEARER
+        sync: false
+      - key: TWITTER_CLIENT_ID
+        sync: false
+      - key: TWITTER_CLIENT_SECRET
+        sync: false
+      - key: IG_APP_ID
+        sync: false
+      - key: IG_APP_SECRET
+        sync: false
+    healthCheckPath: /health
+    autoDeploy: true
+    buildCommand: alembic upgrade head # Run migrations during deployment
+
+databases:
+  - name: sparkr-db
+    plan: standard
+    databaseName: sparkr
+    user: postgres
+
+  - name: sparkr-redis
+    plan: standard
+    ipAllowList: [] # Only allow internal connections

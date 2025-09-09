@@ -28,7 +28,10 @@ from services.endpoint.thumbnail import router as thumbnail_router
 from services.endpoint.content import router as content_router
 from services.endpoint.ab_test import router as ab_test_router
 from services.endpoint.engage import router as engage_router
+from services.endpoint.engagement_router import router as engagement_router
 from services.endpoint.customize import router as customize_router
+from services.endpoint.inbox_router import router as inbox_router
+from services.endpoint.secure_upload import router as upload_router
 from services.endpoint import connect, callback, schedule
 
 # Database setup
@@ -36,6 +39,7 @@ from services.database.database import Base, engine
 from services.database.postgresql import init_db_pool, get_db_connection
 from services.database.mongodb import MongoDBManager
 from services.database.redis import RedisManager
+from middleware.sanitization_middleware import SanitizationMiddleware
 
 # Configure logging
 logging.basicConfig(
@@ -98,6 +102,12 @@ async def initialize_security():
             enable_audit_logging=True
         )
         
+        # Add sanitization middleware
+        app.add_middleware(
+            SanitizationMiddleware,
+            exclude_paths=["/docs", "/redoc", "/openapi.json"]
+        )
+        
         logger.info("Security middleware initialized")
         
     except Exception as e:
@@ -150,7 +160,10 @@ app.include_router(recycle_router, prefix="/api/v1")
 app.include_router(ab_test_router, prefix="/api/v1")
 app.include_router(thumbnail_router, prefix="/api/v1")
 app.include_router(engage_router, prefix="/api/v1")
+app.include_router(engagement_router, prefix="/api/v1")
 app.include_router(customize_router, prefix="/api/v1")
+app.include_router(upload_router, prefix="/api/v1")
+app.include_router(inbox_router, prefix="/inbox")
 app.include_router(connect.router, prefix="/api/v1")
 app.include_router(callback.router, prefix="/api/v1")
 

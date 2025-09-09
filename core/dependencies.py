@@ -6,9 +6,11 @@ from core.config import settings
 from typing import Optional, Dict, Any
 from datetime import datetime
 
+# Import User model at module level to avoid circular imports
+from services.models.user_model import User
+
 def get_current_user(db: Session = Depends(get_db), token: str = Depends(lambda: None)):
     """Validate JWT token and return the corresponding user."""
-    from services.models.user_model import User
     
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

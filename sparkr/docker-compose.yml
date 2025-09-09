@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  # FastAPI application
+  sparkr-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - ../shared:/shared
+    ports:
+      - "8001:8001"
+    depends_on:
+      - sparkr-postgres
+      - sparkr-redis
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@sparkr-postgres:5433/sparkr
+      - REDIS_URL=redis://sparkr-redis:6380/0
+      - JWT_SECRET=dev_jwt_secret
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # Celery worker
+  sparkr-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - ../shared:/shared
+    depends_on:
+      - sparkr-app
+      - sparkr-redis
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@sparkr-postgres:5433/sparkr
+      - REDIS_URL=redis://sparkr-redis:6380/0
+      - JWT_SECRET=dev_jwt_secret
+    command: celery -A app.worker.celery worker --loglevel=info
+    restart: unless-stopped
+
+  # Celery beat for scheduled tasks
+  sparkr-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - ../shared:/shared
+    depends_on:
+      - sparkr-app
+      - sparkr-redis
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@sparkr-postgres:5433/sparkr
+      - REDIS_URL=redis://sparkr-redis:6380/0
+      - JWT_SECRET=dev_jwt_secret
+    command: celery -A app.worker.celery beat --loglevel=info
+    restart: unless-stopped
+
+  # PostgreSQL database
+  sparkr-postgres:
+    image: postgres:13
+    volumes:
+      - sparkr-postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=sparkr
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Redis for caching and Celery broker
+  sparkr-redis:
+    image: redis:6
+    volumes:
+      - sparkr-redis-data:/data
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  sparkr-postgres-data:
+  sparkr-redis-data:

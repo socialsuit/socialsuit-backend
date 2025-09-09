@@ -40,6 +40,25 @@ def admin_required(
     user: User = Depends(auth_required)
 ) -> User:
     """Require an admin user for access."""
-    # TODO: Add admin field to User model and check it here
-    # For now, we'll just use the auth_required dependency
+    from services.models.user_model import UserRole
+    
+    if user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin privileges required"
+        )
+    return user
+
+
+def moderator_required(
+    user: User = Depends(auth_required)
+) -> User:
+    """Require a moderator or admin user for access."""
+    from services.models.user_model import UserRole
+    
+    if user.role not in [UserRole.ADMIN, UserRole.MODERATOR]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Moderator privileges required"
+        )
     return user

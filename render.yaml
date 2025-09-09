@@ -1,0 +1,167 @@
+# Render.com deployment configuration
+services:
+  # Social Suit Web Service
+  - type: web
+    name: social-suit
+    env: docker
+    dockerfilePath: ./social-suit/Dockerfile
+    dockerContext: ./social-suit
+    plan: standard
+    branch: main
+    numInstances: 2
+    autoscaling:
+      min: 2
+      max: 6
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: POSTGRES_URL
+        fromDatabase:
+          name: social-suit-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: social-suit-redis
+          type: redis
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false
+      - key: CLOUDINARY_URL
+        sync: false
+      - key: EMAIL_SMTP_SERVER
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: WALLET_API_KEY
+        sync: false
+
+  # Sparkr Web Service
+  - type: web
+    name: sparkr
+    env: docker
+    dockerfilePath: ./sparkr/Dockerfile
+    dockerContext: ./sparkr
+    plan: standard
+    branch: main
+    numInstances: 2
+    autoscaling:
+      min: 2
+      max: 6
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 10001
+      - key: POSTGRES_URL
+        fromDatabase:
+          name: sparkr-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: sparkr-redis
+          type: redis
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false
+      - key: CLOUDINARY_URL
+        sync: false
+      - key: EMAIL_SMTP_SERVER
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+
+  # Social Suit Worker Service
+  - type: worker
+    name: social-suit-worker
+    env: docker
+    dockerfilePath: ./social-suit/Dockerfile.worker
+    dockerContext: ./social-suit
+    plan: standard
+    branch: main
+    numInstances: 2
+    autoscaling:
+      min: 2
+      max: 6
+    envVars:
+      - key: POSTGRES_URL
+        fromDatabase:
+          name: social-suit-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: social-suit-redis
+          type: redis
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false
+      - key: CLOUDINARY_URL
+        sync: false
+      - key: EMAIL_SMTP_SERVER
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: WALLET_API_KEY
+        sync: false
+
+  # Sparkr Worker Service
+  - type: worker
+    name: sparkr-worker
+    env: docker
+    dockerfilePath: ./sparkr/Dockerfile.worker
+    dockerContext: ./sparkr
+    plan: standard
+    branch: main
+    numInstances: 2
+    autoscaling:
+      min: 2
+      max: 6
+    envVars:
+      - key: POSTGRES_URL
+        fromDatabase:
+          name: sparkr-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: sparkr-redis
+          type: redis
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false
+      - key: CLOUDINARY_URL
+        sync: false
+      - key: EMAIL_SMTP_SERVER
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+
+# Databases
+databases:
+  - name: social-suit-db
+    plan: standard
+    databaseName: social_suit
+    user: social_suit_user
+
+  - name: sparkr-db
+    plan: standard
+    databaseName: sparkr
+    user: sparkr_user
+
+# Redis instances
+redis:
+  - name: social-suit-redis
+    plan: standard
+    maxmemoryPolicy: volatile-lru
+    ipAllowList: []
+
+  - name: sparkr-redis
+    plan: standard
+    maxmemoryPolicy: volatile-lru
+    ipAllowList: []

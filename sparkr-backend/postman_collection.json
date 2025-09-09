@@ -1,0 +1,364 @@
+{
+  "info": {
+    "_postman_id": "e8f5b6c7-d9a0-4e1f-8f2b-3c4d5e6f7a8b",
+    "name": "Sparkr API",
+    "description": "API documentation for Sparkr backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"username\": \"username\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "register"]
+            },
+            "description": "Register a new user"
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "user@example.com",
+                  "description": "Email address used as username"
+                },
+                {
+                  "key": "password",
+                  "value": "password123"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/token",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "token"]
+            },
+            "description": "Login and get access token"
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "me"]
+            },
+            "description": "Get current user information"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Campaigns",
+      "item": [
+        {
+          "name": "Create Campaign",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Campaign Name\",\n  \"description\": \"Campaign Description\",\n  \"start_date\": \"2023-01-01T00:00:00\",\n  \"end_date\": \"2023-12-31T23:59:59\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/campaigns/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "campaigns", ""]
+            },
+            "description": "Create a new campaign"
+          }
+        },
+        {
+          "name": "Get Campaigns",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/campaigns/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "campaigns", ""]
+            },
+            "description": "Get all campaigns"
+          }
+        },
+        {
+          "name": "Get Campaign by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/campaigns/{{campaign_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "campaigns", "{{campaign_id}}"]
+            },
+            "description": "Get a specific campaign by ID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "Create Task",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"campaign_id\": {{campaign_id}},\n  \"title\": \"Task Title\",\n  \"description\": \"Task Description\",\n  \"platform\": \"TWITTER\",\n  \"points\": 100\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/tasks/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "tasks", ""]
+            },
+            "description": "Create a new task"
+          }
+        },
+        {
+          "name": "Get Tasks",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/tasks/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "tasks", ""]
+            },
+            "description": "Get all tasks"
+          }
+        },
+        {
+          "name": "Get Task by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/tasks/{{task_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "tasks", "{{task_id}}"]
+            },
+            "description": "Get a specific task by ID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Submissions",
+      "item": [
+        {
+          "name": "Submit Task",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"submission_url\": \"https://twitter.com/example/status/123456789\",\n  \"tweet_id\": \"123456789\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/submissions/tasks/{{task_id}}/submit",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "submissions", "tasks", "{{task_id}}", "submit"]
+            },
+            "description": "Submit a task"
+          }
+        },
+        {
+          "name": "Get User Submissions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/submissions/user",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "submissions", "user"]
+            },
+            "description": "Get all submissions for the current user"
+          }
+        },
+        {
+          "name": "Update Submission",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"verification_status\": \"VERIFIED\",\n  \"points_awarded\": 100\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/submissions/{{submission_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "submissions", "{{submission_id}}"]
+            },
+            "description": "Update a submission (admin only)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Leaderboard",
+      "item": [
+        {
+          "name": "Get Global Leaderboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/leaderboard/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "leaderboard", ""]
+            },
+            "description": "Get the global leaderboard"
+          }
+        },
+        {
+          "name": "Get Campaign Leaderboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/leaderboard/campaign/{{campaign_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "leaderboard", "campaign", "{{campaign_id}}"]
+            },
+            "description": "Get the leaderboard for a specific campaign"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "your_access_token_here",
+      "type": "string"
+    },
+    {
+      "key": "campaign_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "task_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "submission_id",
+      "value": "1",
+      "type": "string"
+    }
+  ]
+}
